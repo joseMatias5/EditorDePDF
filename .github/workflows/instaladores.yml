@@ -26,9 +26,9 @@ jobs:
           - { os: windows-latest, nombre: Windows, destino: --win }
           - { os: macos-latest, nombre: Mac, destino: --mac }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: npm
@@ -60,14 +60,14 @@ jobs:
 
       - name: Guardar diagnóstico si falló
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: diagnostico-${{ matrix.nombre }}
           path: test-results/
           if-no-files-found: ignore
 
       - name: Subir instaladores
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: instalador-${{ matrix.nombre }}
           if-no-files-found: error
@@ -85,7 +85,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: instalador-*
           merge-multiple: true
