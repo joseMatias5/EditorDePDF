@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Editor PDF</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2316181D'/%3E%3Crect x='3' y='9' width='10' height='3' fill='%23FFE14D'/%3E%3C/svg%3E" />
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body data-herramienta="resaltar">
+    <header class="cabecera">
+      <h1 id="titulo-app" class="solo-lector">Editor PDF</h1>
+      <nav id="barra" class="barra" aria-label="Herramientas"></nav>
+      <div id="avisos" class="avisos"></div>
+    </header>
+
+    <!-- tabindex: la zona se desplaza con las flechas del teclado (axe: scrollable-region-focusable). -->
+    <main id="documento" class="documento" tabindex="0" aria-label="Documento">
+      <section id="vacio" class="vacio" aria-labelledby="titulo-vacio">
+        <h2 id="titulo-vacio">Abrí un PDF para empezar a anotarlo</h2>
+        <p>Arrastralo acá o elegilo desde tu equipo. Nada sale de tu computadora.</p>
+        <button id="boton-abrir-vacio" type="button" class="boton boton-principal">Abrir PDF</button>
+        <dl id="resumen-teclas" class="resumen-teclas"></dl>
+        <p class="nota">Las teclas se cambian con el botón «Teclas».</p>
+      </section>
+      <div id="paginas" class="paginas"></div>
+    </main>
+
+    <input id="entrada-archivo" type="file" accept="application/pdf,.pdf" hidden />
+    <dialog id="dialogo-atajos" class="dialogo"></dialog>
+    <dialog id="dialogo-colores" class="dialogo dialogo-colores"></dialog>
+  </body>
+</html>

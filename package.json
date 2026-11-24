@@ -1,0 +1,37 @@
+{
+  "name": "editor-pdf-anotaciones",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Editor de PDF (escritorio y web) para resaltar, subrayar, dibujar y escribir, con colores y deshacer en teclas reasignables.",
+  "type": "module",
+  "main": "escritorio/main.mjs",
+  "scripts": {
+    "start": "npm run build && electron .",
+    "recursos": "node scripts/copiar-recursos-pdfjs.mjs",
+    "dev": "npm run recursos && vite",
+    "build": "npm run recursos && tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "tipos": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:escritorio": "npm run build && playwright test -c playwright.escritorio.config.ts",
+    "verificar": "npm run tipos && npm run lint && npm test && npm run build"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.5.438"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.1",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.7",
+    "electron": "^45.5.0",
+    "eslint": "^10.15.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.74.0",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
+  }
+}

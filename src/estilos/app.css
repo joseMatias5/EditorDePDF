@@ -1,0 +1,698 @@
+/* Editor PDF — sistema «Naranja señal» (tokens.css). Un acento: la barra de 4 px de la herramienta activa.
+   La página del PDF siempre es blanca (es el papel del documento, no la interfaz). */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  /* minmax(0, …): sin esto la columna crece con la barra y la página entera desborda en móvil (L-076). */
+  grid-template-columns: minmax(0, 1fr);
+  font-family: var(--fuente);
+  font-size: var(--texto-md);
+  color: var(--tinta);
+  background: var(--fondo);
+}
+
+.solo-lector,
+.herramienta .etiqueta,
+.muestra .etiqueta,
+.boton-zoom .etiqueta {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+kbd {
+  font-family: var(--fuente-mono);
+  font-size: 11px;
+  line-height: 16px;
+  min-width: 16px;
+  padding: 0 3px;
+  text-align: center;
+  color: var(--apagado);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: 3px;
+  background: var(--papel);
+}
+
+/* ——— Cabecera y barra ——— */
+
+.cabecera {
+  background: var(--papel);
+  border-bottom: 1px solid var(--linea);
+  z-index: 10;
+}
+
+/* position: relative en barra y botones: las etiquetas ocultas (absolutas) quedan dentro del área desplazable. */
+.barra {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e2) 0;
+  padding: var(--e2) var(--e3);
+}
+
+.grupo {
+  display: flex;
+  align-items: center;
+  gap: var(--e1);
+  padding: 0 var(--e3);
+  border-right: 1px solid var(--linea);
+}
+
+.grupo:first-child {
+  padding-left: 0;
+}
+
+.grupo:last-child {
+  border-right: 0;
+}
+
+.boton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 var(--e2);
+  font: inherit;
+  font-size: var(--texto-sm);
+  color: var(--tinta);
+  background: var(--papel);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  cursor: pointer;
+}
+
+.boton:hover:not(:disabled) {
+  background: var(--fondo);
+}
+
+.boton:disabled {
+  color: var(--apagado);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.boton kbd[hidden] {
+  display: none;
+}
+
+.boton-chico {
+  min-height: 32px;
+}
+
+.boton-zoom {
+  min-width: 40px;
+  justify-content: center;
+  font-size: var(--texto-lg);
+  line-height: 1;
+}
+
+.boton-principal {
+  min-height: 48px;
+  padding: 0 var(--e4);
+  font-size: var(--texto-md);
+  font-weight: var(--peso-fuerte);
+  color: var(--sobre-acento);
+  background: var(--acento);
+  border-color: var(--acento);
+}
+
+.boton-principal:hover:not(:disabled) {
+  background: var(--acento);
+  filter: brightness(1.05);
+}
+
+/* Herramientas: ícono arriba, tecla abajo; la activa lleva la barra de acento. */
+.herramienta,
+.muestra {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 44px;
+  min-height: 52px;
+  padding: 4px 0 6px;
+  color: var(--tinta);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radio);
+  cursor: pointer;
+}
+
+.herramienta:hover,
+.muestra:hover {
+  background: var(--fondo);
+}
+
+.herramienta[aria-pressed="true"] {
+  background: var(--acento-suave);
+  color: var(--acento-tinta);
+  box-shadow: inset 0 -4px 0 var(--acento);
+}
+
+.herramienta[aria-pressed="true"] kbd {
+  color: var(--acento-tinta);
+  border-color: currentColor;
+}
+
+/* Colores: círculo del color; el elegido, con anillo de tinta. */
+/* El color va sobre un damero: así se ve cuánta transparencia tiene. */
+/* Aro con el color del texto al 35 %: oscuro en tema claro, claro en tema oscuro.
+   (Un borde negro translúcido o --linea-fuerte hacían desaparecer los negros y grises en tema oscuro.) */
+.muestra::before,
+.opcion-color {
+  --damero: repeating-conic-gradient(#c9cdd3 0 25%, #fff 0 50%) 0 0 / 8px 8px;
+  --aro-muestra: color-mix(in srgb, var(--tinta) 35%, transparent);
+}
+
+.muestra::before {
+  content: "";
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(var(--muestra), var(--muestra)), var(--damero);
+  border: 1px solid var(--aro-muestra);
+}
+
+.muestra[aria-pressed="true"]::before {
+  box-shadow:
+    0 0 0 2px var(--papel),
+    0 0 0 4px var(--tinta);
+}
+
+.muestra[aria-pressed="true"] kbd {
+  color: var(--tinta);
+  border-color: var(--tinta);
+}
+
+.selector {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--texto-xs);
+  color: var(--apagado);
+}
+
+.selector select {
+  min-height: 32px;
+  font: inherit;
+  font-size: var(--texto-sm);
+  color: var(--tinta);
+  background: var(--papel);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+}
+
+.grupo output {
+  min-width: 52px;
+  text-align: center;
+  font-size: var(--texto-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.estado-guardado {
+  font-size: var(--texto-xs);
+  color: var(--aviso);
+  font-weight: var(--peso-fuerte);
+}
+
+/* ——— Avisos ——— */
+
+.aviso {
+  margin: 0;
+  padding: var(--e2) var(--e3);
+  font-size: var(--texto-sm);
+  border-top: 1px solid var(--linea);
+}
+
+.aviso[hidden] {
+  display: none;
+}
+
+.aviso-info {
+  color: var(--ok);
+}
+
+.aviso-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e3);
+  color: var(--error);
+  box-shadow: inset 4px 0 0 var(--error);
+}
+
+/* ——— Documento ——— */
+
+.documento {
+  position: relative;
+  overflow: auto;
+  min-width: 0;
+  /* Reserva el lugar de la barra vertical: si no, «ajustar al ancho» se calcula sin ella y sobra una barra horizontal. */
+  scrollbar-gutter: stable;
+}
+
+.documento.arrastrando {
+  outline: 2px dashed var(--acento-texto);
+  outline-offset: -8px;
+}
+
+.paginas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e3);
+  width: max-content;
+  min-width: 100%;
+  padding: var(--e3);
+}
+
+.paginas:empty {
+  display: none;
+}
+
+.pagina {
+  position: relative;
+  isolation: isolate;
+  flex: none;
+  background: #fff;
+  border: 1px solid var(--linea-fuerte);
+}
+
+.pagina > canvas {
+  display: block;
+}
+
+/* Como un resaltador real: el texto negro sigue negro debajo del color.
+   La mezcla tiene que estar en la capa entera: dentro del SVG solo se mezclaría con el propio SVG
+   (transparente) y el resaltado taparía el texto. `isolation` en .pagina la limita a la página. */
+.capa-anotaciones {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: multiply;
+}
+
+.capa-cuadros {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.cuadro-texto {
+  position: absolute;
+  margin: 0;
+  font-family: Helvetica, Arial, "Liberation Sans", sans-serif;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cuadro-edicion {
+  display: block;
+  resize: none;
+  overflow: hidden;
+  background: rgb(255 255 255 / 0.9);
+  border: 1px dashed var(--acento-texto);
+  border-radius: 0;
+  outline: none;
+  pointer-events: auto;
+}
+
+/* Qué capa recibe el puntero según la herramienta (body[data-herramienta]). */
+body:is([data-herramienta="dibujar"], [data-herramienta="borrar"], [data-herramienta="texto"]) .capa-anotaciones,
+body:is([data-herramienta="resaltar"], [data-herramienta="subrayar"]) .pagina.sin-texto .capa-anotaciones {
+  pointer-events: auto;
+  touch-action: none;
+}
+
+body[data-herramienta="dibujar"] .capa-anotaciones,
+body:is([data-herramienta="resaltar"], [data-herramienta="subrayar"]) .pagina.sin-texto .capa-anotaciones {
+  cursor: crosshair;
+}
+
+body[data-herramienta="borrar"] .capa-anotaciones {
+  cursor: cell;
+}
+
+body[data-herramienta="texto"] .capa-anotaciones,
+body[data-herramienta="texto"] .cuadro-texto {
+  cursor: text;
+}
+
+body[data-herramienta="texto"] .cuadro-texto {
+  pointer-events: auto;
+}
+
+/* Mientras se elige texto para marcar, la selección se ve con el color activo. */
+body:is([data-herramienta="resaltar"], [data-herramienta="subrayar"]) .textLayer ::selection {
+  background: color-mix(in srgb, var(--color-activo) 55%, transparent);
+}
+
+/* ——— Capa de texto de pdf.js (extracto de pdfjs-dist/web/pdf_viewer.css, v6) ——— */
+
+.textLayer {
+  color-scheme: only light;
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: clip;
+  opacity: 1;
+  line-height: 1;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  caret-color: CanvasText;
+  z-index: 1;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+
+.textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text;
+}
+
+.textLayer > :not(.markedContent),
+.textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  --scale-x: 1;
+  --rotate: 0deg;
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+
+.textLayer .markedContent {
+  display: contents;
+}
+
+.textLayer ::selection {
+  background: rgb(0 0 255 / 0.25);
+  color: transparent;
+}
+
+.textLayer br::selection {
+  background: transparent;
+}
+
+.textLayer .endOfContent {
+  display: block;
+  position: absolute;
+  inset: 100% 0 0;
+  z-index: 0;
+  cursor: default;
+  user-select: none;
+}
+
+.textLayer.selecting .endOfContent {
+  top: 0;
+}
+
+/* ——— Estado vacío ——— */
+
+.vacio {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--e6) var(--e3);
+}
+
+.vacio[hidden] {
+  display: none;
+}
+
+.vacio h2 {
+  margin: 0 0 var(--e2);
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-fuerte);
+}
+
+.vacio p {
+  margin: 0 0 var(--e4);
+  color: var(--apagado);
+}
+
+.resumen-teclas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: var(--e1) var(--e4);
+  margin: var(--e5) 0 var(--e3);
+  padding: var(--e3) 0 0;
+  border-top: 1px solid var(--linea);
+  font-size: var(--texto-sm);
+}
+
+.resumen-teclas div {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  min-height: 28px;
+}
+
+.resumen-teclas dt {
+  width: 28px;
+}
+
+.resumen-teclas dd {
+  margin: 0;
+}
+
+.vacio .nota {
+  font-size: var(--texto-xs);
+}
+
+/* ——— Diálogo de teclas ——— */
+
+.dialogo {
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  padding: var(--e4);
+  color: var(--tinta);
+  background: var(--papel);
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+}
+
+.dialogo::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+.dialogo h2 {
+  margin: 0 0 var(--e2);
+  font-size: var(--texto-lg);
+}
+
+.dialogo .ayuda {
+  margin: 0 0 var(--e3);
+  font-size: var(--texto-sm);
+  color: var(--apagado);
+}
+
+.dialogo table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texto-sm);
+}
+
+.dialogo th,
+.dialogo td {
+  height: 40px;
+  padding: 0 var(--e2);
+  text-align: left;
+  border-bottom: 1px solid var(--linea);
+}
+
+.dialogo thead th {
+  font-size: var(--texto-xs);
+  color: var(--apagado);
+  font-weight: var(--peso-fuerte);
+}
+
+.dialogo tbody th {
+  font-weight: normal;
+}
+
+.dialogo td:last-child {
+  text-align: right;
+}
+
+.mensaje-atajos {
+  min-height: 1.5em;
+  margin: var(--e3) 0;
+  font-size: var(--texto-sm);
+  color: var(--acento-tinta);
+}
+
+.pie-dialogo {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--e2);
+}
+
+/* ——— Ventana de colores ——— */
+
+.dialogo-colores {
+  width: min(640px, calc(100% - 32px));
+}
+
+.seccion-colores {
+  margin: 0 0 var(--e4);
+}
+
+.seccion-colores h3 {
+  margin: 0 0 var(--e2);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-fuerte);
+  color: var(--apagado);
+}
+
+.ranuras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e1);
+}
+
+.grilla-colores {
+  display: grid;
+  grid-template-columns: auto repeat(var(--columnas), minmax(0, 1fr));
+  gap: 6px;
+  align-items: center;
+}
+
+.fila-intensidad {
+  padding-right: var(--e2);
+  font-size: var(--texto-xs);
+  color: var(--apagado);
+}
+
+.opcion-color {
+  justify-self: center;
+  width: 100%;
+  max-width: 36px;
+  aspect-ratio: 1;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--muestra);
+  border: 1px solid var(--aro-muestra);
+  cursor: pointer;
+}
+
+.opcion-color[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px var(--papel),
+    0 0 0 4px var(--tinta);
+}
+
+.color-elegido {
+  margin: var(--e2) 0 0;
+  font-size: var(--texto-sm);
+}
+
+.opciones-transparencia {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e1);
+  margin-bottom: var(--e3);
+}
+
+.opciones-transparencia .opcion[aria-pressed="true"] {
+  color: var(--papel);
+  background: var(--tinta);
+  border-color: var(--tinta);
+}
+
+/* Vista previa sobre papel blanco, como en la página: resaltado (multiplicar) y trazo. */
+.muestra-color {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  padding: var(--e2) var(--e3);
+  color: #16181d;
+  background: #fff;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radio);
+  isolation: isolate;
+}
+
+.ejemplo-resaltado {
+  padding: 2px 4px;
+  background: var(--tinta);
+  mix-blend-mode: multiply;
+}
+
+.muestra-color svg {
+  width: 120px;
+  height: 24px;
+  fill: none;
+  stroke: var(--tinta);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+/* ——— Pantallas chicas y táctiles ——— */
+
+/* Móvil: una sola fila que se desplaza de costado; botones solo con ícono (el nombre queda para lectores). */
+@media (max-width: 720px) {
+  .barra {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: var(--e1) var(--e2);
+    scrollbar-width: thin;
+  }
+
+  .grupo {
+    flex: none;
+    padding: 0 var(--e2);
+  }
+
+  .barra .boton:has(svg) .etiqueta {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .barra .boton kbd {
+    display: none;
+  }
+
+  .herramienta,
+  .muestra {
+    width: 40px;
+  }
+}
+
+@media (pointer: coarse) {
+  .boton,
+  .selector select {
+    min-height: 44px;
+  }
+}
