@@ -7,6 +7,21 @@ Funciona sin internet: el PDF nunca sale de tu equipo.
 **Recomendado: la app de escritorio** (`npm start`). «Guardar» escribe sobre el mismo PDF, como en Edge, sin abrir nada más.
 También corre en el navegador (`npm run dev`), pero ahí depende de lo que permita cada navegador (ver «Guardar»).
 
+## Instalar
+
+Descargá el instalador de tu sistema desde **[Releases](https://github.com/joseMatias5/EditorDePDF/releases)**.
+La app no está firmada con un certificado pago, así que la primera vez cada sistema pide confirmar:
+
+| Sistema | Archivo | Cómo |
+|---|---|---|
+| **Windows** 10/11 | `Editor-PDF-…-win-x64.exe` | Doble clic. Si aparece «Windows protegió tu PC»: **Más información → Ejecutar de todas formas**. Crea accesos en el escritorio y en el menú Inicio. |
+| **Linux** (Mint, Ubuntu, Debian) | `Editor-PDF-…-linux-amd64.deb` | `sudo apt install ./Editor-PDF-…-linux-amd64.deb` (o doble clic). Queda en el menú como «Editor PDF». |
+| **Linux** (cualquier otra) | `Editor-PDF-…-linux-x86_64.AppImage` | Clic derecho → Propiedades → Permitir ejecutar (o `chmod +x`) y doble clic. En Ubuntu 24.04 o más nuevo, preferí el `.deb`. |
+| **Mac** con chip Apple (M1–M4) | `Editor-PDF-…-mac-arm64.dmg` | Abrí el `.dmg` y arrastrá «Editor PDF» a Aplicaciones. La primera vez: **clic derecho → Abrir → Abrir** (o Ajustes → Privacidad y seguridad → «Abrir igualmente»). |
+| **Mac** con Intel | `Editor-PDF-…-mac-x64.dmg` | Igual que arriba. |
+
+Si en Mac dice que la app «está dañada», es la cuarentena de las descargas: `xattr -cr "/Applications/Editor PDF.app"` en la Terminal.
+
 ## Teclas por defecto
 
 | Tecla | Acción | Tecla | Acción |
@@ -61,6 +76,7 @@ Para la versión web sin la terminal de desarrollo: `npm run build` y servir la 
 | `npm run verificar` | Tipos + ESLint + pruebas unitarias + build |
 | `npm test` | Pruebas unitarias y de arquitectura (Vitest) |
 | `npm run test:e2e` | Punta a punta en Chromium, escritorio y móvil (hace build antes). Primera vez: `npx playwright install chromium` |
+| `npm run instalador:linux` (`:windows`, `:mac`) | Arma el instalador en `release/`. Cada uno solo en su sistema; los tres se arman solos en GitHub Actions |
 | `npm run test:escritorio` | Punta a punta de la app de escritorio (Electron): guardar en el mismo archivo, seguridad, cierre. Abre ventanas un momento |
 
 ## Estructura
@@ -72,6 +88,8 @@ src/infraestructura/  pdf.js (mostrar), pdf-lib (escribir/leer anotaciones), nav
 src/presentacion/     barra, páginas, puntero, selección de texto, teclado, ventanas de teclas y colores
 src/main.ts           composición (elige escritorio o navegador)
 escritorio/           proceso principal de Electron: ventana, diálogos nativos, escritura atómica en disco
+build/                ícono de la app (SVG fuente y PNG para los instaladores)
+electron-builder.yml  configuración de los instaladores; .github/workflows/ los arma en los tres sistemas
 docs/                 decisiones, ADR, deuda técnica, lecciones
 ```
 
@@ -84,5 +102,6 @@ docs/                 decisiones, ADR, deuda técnica, lecciones
 - Si movés en Edge una marca hecha con esta app y la reabrís aquí, vuelve a su posición original (se usan los datos propios guardados).
 - Texto de cuadros: Helvetica estándar del PDF; los emojis se guardan en el contenido pero se dibujan como «?».
 - En páginas rotadas, los cuadros de texto no se rotan.
-- La app de escritorio se probó en Linux (Mint 22.3, X11). No hay instalador (`.deb`/`.exe`) todavía: se abre con `npm start`.
+- La app de escritorio se probó a mano en Linux (Mint 22.3, X11). Windows y Mac se prueban en GitHub Actions con la app ya empaquetada, pero no en un equipo real.
+- Instaladores sin firma de pago: la primera vez hay que confirmar la apertura (ver «Instalar»).
 - Las e2e web corren en Chromium. En Firefox no hay pruebas automáticas; el guardado sobre el mismo archivo en Chrome/Edge (File System Access) se probó solo por código.

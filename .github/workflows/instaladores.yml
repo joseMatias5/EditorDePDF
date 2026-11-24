@@ -1,0 +1,102 @@
+# Instaladores de Editor PDF para Windows, Linux y Mac (ver docs/adr/0003-instaladores.md).
+# Cada sistema se compila en su propio sistema: Windows no se puede armar desde Linux sin Wine, y Mac solo en Mac.
+# En cada uno, antes de publicar: verificación completa y prueba de la app YA EMPAQUETADA (abrir, guardar en el mismo
+# archivo, seguridad, cierre). Con una etiqueta v* (p. ej. v0.1.0) los instaladores se publican en una Release.
+name: Instaladores
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  instalador:
+    name: ${{ matrix.nombre }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, nombre: Linux, destino: --linux }
+          - { os: windows-latest, nombre: Windows, destino: --win }
+          - { os: macos-latest, nombre: Mac, destino: --mac }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Dependencias
+        run: npm ci
+
+      - name: Tipos, lint, pruebas unitarias y build
+        run: npm run verificar
+
+      - name: Armar el instalador
+        run: npx electron-builder ${{ matrix.destino }} --publish never
+
+      # Ubuntu 24.04 restringe los user namespaces que usa el sandbox de Chromium: sin esto Electron no arranca.
+      - name: Preparar pantalla virtual (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
+
+      - name: Ubicar la app empaquetada
+        shell: bash
+        run: echo "EDITOR_PDF_EJECUTABLE=$(node scripts/ejecutable-empaquetado.mjs)" >> "$GITHUB_ENV"
+
+      - name: Probar la app empaquetada
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then xvfb-run -a npm run test:empaquetada; else npm run test:empaquetada; fi
+
+      - name: Guardar diagnóstico si falló
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-${{ matrix.nombre }}
+          path: test-results/
+          if-no-files-found: ignore
+
+      - name: Subir instaladores
+        uses: actions/upload-artifact@v4
+        with:
+          name: instalador-${{ matrix.nombre }}
+          if-no-files-found: error
+          path: |
+            release/*.exe
+            release/*.AppImage
+            release/*.deb
+            release/*.dmg
+
+  publicar:
+    name: Publicar Release
+    needs: instalador
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: instalador-*
+          merge-multiple: true
+          path: instaladores
+
+      - name: Crear la Release con los instaladores
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ETIQUETA: ${{ github.ref_name }}
+        run: |
+          gh release create "$ETIQUETA" instaladores/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Editor PDF $ETIQUETA" \
+            --notes "Instaladores de Editor PDF $ETIQUETA. Cómo instalar en cada sistema: ver la sección «Instalar» del README."

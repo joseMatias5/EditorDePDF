@@ -1,4 +1,4 @@
-import { chmod, mkdtemp, readFile, readdir, rm, stat, symlink, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, readdir, rm, stat, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -18,9 +18,10 @@ afterEach(async () => {
 describe("RegistroDeArchivos", () => {
   it("da un identificador por ruta y solo resuelve los que entregó", () => {
     const registro = new RegistroDeArchivos();
-    const id = registro.registrar("/tmp/a.pdf");
-    expect(registro.ruta(id)).toBe("/tmp/a.pdf");
-    expect(registro.registrar("/tmp/a.pdf")).toBe(id);
+    const ruta = join(carpeta, "a.pdf");
+    const id = registro.registrar(ruta);
+    expect(registro.ruta(id)).toBe(ruta);
+    expect(registro.registrar(ruta)).toBe(id);
     expect(() => registro.ruta("inventado")).toThrow(/no fue abierto/);
   });
 });
@@ -32,19 +33,24 @@ describe("validarPdf", () => {
     await expect(validarPdf(ruta)).resolves.toBeUndefined();
   });
 
-  it("rechaza otra extensión, carpetas, archivos inexistentes y enlaces simbólicos", async () => {
+  it("rechaza otra extensión, carpetas y archivos inexistentes", async () => {
+    const texto = join(carpeta, "nota.txt");
+    await writeFile(texto, "hola");
+    const subcarpeta = join(carpeta, "carpeta.pdf");
+    await mkdir(subcarpeta);
+
+    await expect(validarPdf(texto)).rejects.toThrow(/PDF/);
+    await expect(validarPdf(subcarpeta)).rejects.toThrow(/archivo común/);
+    await expect(validarPdf(join(carpeta, "no-existe.pdf"))).rejects.toThrow();
+  });
+
+  // En Windows crear enlaces simbólicos exige privilegios de administrador (L-084: lo que depende del sistema, solo ahí).
+  it.skipIf(process.platform === "win32")("rechaza enlaces simbólicos (podrían apuntar a otro archivo)", async () => {
     const texto = join(carpeta, "nota.txt");
     await writeFile(texto, "hola");
     const enlace = join(carpeta, "enlace.pdf");
     await symlink(texto, enlace);
-    const subcarpeta = join(carpeta, "carpeta.pdf");
-    await rm(subcarpeta, { force: true });
-    await (await import("node:fs/promises")).mkdir(subcarpeta);
-
-    await expect(validarPdf(texto)).rejects.toThrow(/PDF/);
     await expect(validarPdf(enlace)).rejects.toThrow(/archivo común/);
-    await expect(validarPdf(subcarpeta)).rejects.toThrow(/archivo común/);
-    await expect(validarPdf(join(carpeta, "no-existe.pdf"))).rejects.toThrow();
   });
 });
 
@@ -67,7 +73,8 @@ describe("escribirAtomico", () => {
     expect(await readdir(carpeta)).toEqual(["doc.pdf"]);
   });
 
-  it("conserva los permisos del archivo original", async () => {
+  // Los permisos rwx de Unix no existen en Windows.
+  it.skipIf(process.platform === "win32")("conserva los permisos del archivo original", async () => {
     const ruta = join(carpeta, "doc.pdf");
     await writeFile(ruta, "viejo");
     await chmod(ruta, 0o640);

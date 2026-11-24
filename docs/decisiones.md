@@ -28,6 +28,12 @@ Pedido: «al guardar, que se guarde en el mismo documento y no me redirija», co
 File System Access. Preguntado: eligió **app de escritorio** (Electron) entre escritorio, servidor local o instalar Edge/Chrome.
 Detalle y seguridad en `docs/adr/0002-app-de-escritorio.md`. En el navegador, Guardar descarga sin abrir el visor.
 
+## Instaladores (pedido del 2026-11-24)
+
+Windows `.exe`, Linux `.AppImage`/`.deb`, Mac `.dmg` (Intel y Apple Silicon), armados cada uno en su sistema en GitHub
+Actions y probados ya empaquetados antes de publicarse. Sin firma de pago (avisos de primera apertura en el README).
+`CLAUDE.md` y `TESTING.md` quedan solo en el equipo (fuera del repo, en `.gitignore`), a pedido del usuario. Ver ADR 0003.
+
 ## Por defecto (no preguntadas)
 
 - **Atajos sin modificadores.** Con Ctrl/Cmd/Alt apretados no se interpreta nada (Ctrl+C, Ctrl+P siguen siendo del navegador). Ctrl+Z **no** deshace, a pedido.

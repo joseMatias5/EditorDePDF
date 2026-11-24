@@ -4,3 +4,8 @@ public/pdfjs/
 test-results/
 playwright-report/
 *.local
+# Instrucciones locales para Claude y copia de la guía de pruebas de la base: solo en este equipo.
+CLAUDE.md
+TESTING.md
+# Salida de electron-builder (instaladores)
+release/

@@ -1,0 +1,59 @@
+# Instaladores de Editor PDF (electron-builder). Ver docs/adr/0003-instaladores.md.
+# Windows: .exe (NSIS) · Linux: .AppImage y .deb · Mac: .dmg (Intel y Apple Silicon).
+# Cada sistema se compila en su propio sistema (GitHub Actions, .github/workflows/instaladores.yml).
+appId: io.github.josematias5.editorpdf
+productName: Editor PDF
+copyright: Editor PDF
+artifactName: Editor-PDF-${version}-${os}-${arch}.${ext}
+
+directories:
+  output: release
+  buildResources: build
+
+# Todo lo de la interfaz ya está empaquetado por Vite en dist/; el proceso principal vive en escritorio/.
+files:
+  - dist/**/*
+  - escritorio/**/*
+  - package.json
+asar: true
+
+win:
+  icon: build/icon.png
+  target:
+    - target: nsis
+      arch: [x64]
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Editor PDF
+  # 3082 = Español (España, alfabetización internacional): textos del asistente en español.
+  language: "3082"
+
+linux:
+  icon: build/icon.png
+  category: Office
+  executableName: editor-pdf
+  # La ventana abierta se agrupa con su ícono del menú (WM_CLASS = desktopName de package.json).
+  syncDesktopName: true
+  synopsis: Resaltá, subrayá, dibujá y escribí sobre PDF con teclas
+  maintainer: joseMatias5 <joseMatias5@users.noreply.github.com>
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+
+mac:
+  icon: build/icon.png
+  category: public.app-category.productivity
+  # Sin certificado de Apple: firma ad-hoc ("-"). Sin ninguna firma, las Mac con chip Apple no abren la app.
+  # hardenedRuntime en false: con firma ad-hoc y hardened runtime la app puede no arrancar (doc. de electron-builder).
+  identity: "-"
+  hardenedRuntime: false
+  target:
+    - target: dmg
+      arch: [x64, arm64]

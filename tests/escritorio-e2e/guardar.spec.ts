@@ -50,7 +50,9 @@ test.beforeEach(async () => {
   carpeta = await mkdtemp(join(tmpdir(), "editor-pdf-escritorio-"));
   ruta = join(carpeta, "apuntes.pdf");
   await writeFile(ruta, await crearPdfDePrueba());
-  app = await electron.launch({ args: [RAIZ] });
+  // Con EDITOR_PDF_EJECUTABLE se prueba la app empaquetada por electron-builder (la que se instala), no la de desarrollo.
+  const empaquetada = process.env.EDITOR_PDF_EJECUTABLE;
+  app = empaquetada ? await electron.launch({ executablePath: empaquetada, args: [] }) : await electron.launch({ args: [RAIZ] });
   ventana = await app.firstWindow();
   errores = [];
   ventana.on("pageerror", (e) => errores.push(e.message));
@@ -60,7 +62,20 @@ test.beforeEach(async () => {
   await expect(ventana.getByRole("heading", { level: 2 })).toBeVisible();
 });
 
-test.afterEach(async () => {
+// eslint-disable-next-line no-empty-pattern -- Playwright exige desestructurar el primer argumento para recibir testInfo.
+test.afterEach(async ({}, info) => {
+  // Si la prueba falló: captura y estado de la selección, para diagnosticar sin adivinar.
+  if (info.status !== info.expectedStatus && !ventana.isClosed()) {
+    await info.attach("ventana", { body: await ventana.screenshot(), contentType: "image/png" });
+    const estado = await ventana.evaluate(() => ({
+      seleccion: String(document.getSelection()),
+      foco: document.hasFocus(),
+      herramienta: document.body.dataset.herramienta,
+      marcas: document.querySelectorAll(".capa-anotaciones g.anotaciones > *").length,
+      avisos: document.getElementById("avisos")?.textContent,
+    }));
+    await info.attach("estado", { body: JSON.stringify(estado, null, 2), contentType: "application/json" });
+  }
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().forEach((v) => v.destroy()));
   await app.close();
   await rm(carpeta, { recursive: true, force: true });

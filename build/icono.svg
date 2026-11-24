@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Ícono de Editor PDF: hoja con una línea resaltada. Grafito #16181D + acento naranja (tokens «Naranja señal»). -->
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="#16181D"/>
+  <path d="M300 200 H620 L760 340 V824 H300 Z" fill="#FFFFFF"/>
+  <path d="M620 200 V340 H760 Z" fill="#C9CDD3"/>
+  <rect x="360" y="410" width="320" height="34" rx="8" fill="#C9CDD3"/>
+  <rect x="340" y="500" width="360" height="72" rx="6" fill="#FFE14D"/>
+  <rect x="360" y="519" width="300" height="34" rx="8" fill="#5B616B"/>
+  <rect x="360" y="626" width="280" height="34" rx="8" fill="#C9CDD3"/>
+  <rect x="360" y="716" width="200" height="34" rx="8" fill="#C9CDD3"/>
+  <rect x="300" y="824" width="460" height="24" fill="#E8590C"/>
+</svg>
